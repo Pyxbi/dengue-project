@@ -1,0 +1,236 @@
+import Link from "next/link";
+import { cn } from "@/lib/utils";
+
+export default function TaskCenter() {
+    return (
+        <div className="flex flex-col min-h-screen bg-slate-50 text-slate-800 font-sans">
+            {/* Header */}
+            <header className="flex items-center justify-between border-b border-slate-100 px-10 py-5 bg-white/80 backdrop-blur-md sticky top-0 z-50">
+                <div className="flex items-center gap-8">
+                    <Link href="/" className="flex items-center gap-3 text-primary hover:opacity-80 transition-opacity">
+                        <div className="size-10 bg-primary/10 rounded-xl flex items-center justify-center">
+                            <span className="material-symbols-outlined text-primary font-bold">shield_with_heart</span>
+                        </div>
+                        <h2 className="text-slate-900 text-xl font-extrabold leading-tight tracking-tight">Mekong <span className="text-primary">Sentinel</span></h2>
+                    </Link>
+                    <nav className="hidden md:flex items-center gap-8">
+                        <Link href="/citizen/map" className="text-slate-500 hover:text-primary text-sm font-bold transition-colors">Map</Link>
+                        <Link href="/citizen/tasks" className="text-primary text-sm font-extrabold relative">
+                            Task Center
+                            <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-primary"></span>
+                        </Link>
+                        <Link href="/citizen/impact" className="text-slate-500 hover:text-primary text-sm font-bold transition-colors">Impact</Link>
+                        <Link href="/citizen/community" className="text-slate-500 hover:text-primary text-sm font-bold transition-colors">Community</Link>
+                    </nav>
+                </div>
+                <div className="flex items-center gap-5">
+                    <div className="flex items-center gap-2 bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/10 px-4 py-2 rounded-full">
+                        <span className="material-symbols-outlined text-primary text-lg fill-1">stars</span>
+                        <span className="text-primary font-extrabold text-sm">2,450 pts</span>
+                    </div>
+                    <button className="p-2.5 rounded-xl bg-slate-50 text-slate-500 border border-slate-100">
+                        <span className="material-symbols-outlined text-xl">notifications</span>
+                    </button>
+                    <div className="bg-center bg-no-repeat aspect-square bg-cover rounded-2xl size-10 ring-4 ring-slate-50" style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuD36ZbbE5-8QM-ezBlAYS1LlkOdyl-2aNxedi7PIsZ0Z_qw0EvKUmkf4E4CG__DaeWuvSwfELzXF_pTgAn4D_d9fjpMg_Pv1NTEUTwLTrcdSZcuujEdD0oJ8BG8r8VFAA5BzsFAVex0zNLb6m0MmboydxfbcG3HCfMDbUab-yfMiM1ZaK0gP5_QwWT63RSpoMPVq_4-hTPhQjvAbBG7nhWTgz8sJdJkmCpMocXA9hJ0NvN_v542PLrUt3sde5uyhATxAd_tr_mVfug')" }}></div>
+                </div>
+            </header>
+
+            {/* Main Content */}
+            <main className="max-w-[1280px] mx-auto w-full px-8 py-10">
+                <div className="flex flex-wrap justify-between items-center gap-6 mb-12">
+                    <div className="flex flex-col gap-2">
+                        <h1 className="text-slate-900 text-4xl font-black tracking-tight">Daily Missions</h1>
+                        <p className="text-slate-500 text-lg font-medium">Protect your community, earn rewards, and keep the Delta healthy.</p>
+                    </div>
+                    <div>
+                        <button className="flex items-center justify-center rounded-2xl h-14 px-8 bg-primary text-white font-bold text-lg hover:brightness-105 transition-all shadow-md group">
+                            <span className="material-symbols-outlined mr-3 text-2xl">photo_camera</span>
+                            Complete New Task
+                        </button>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-12 gap-10">
+                    <div className="col-span-12 lg:col-span-8 flex flex-col gap-12">
+                        {/* Friends Activity */}
+                        <section>
+                            <div className="flex items-center justify-between mb-6">
+                                <div className="flex flex-col">
+                                    <h3 className="text-xl font-extrabold flex items-center gap-2 text-slate-800">
+                                        <span className="material-symbols-outlined text-pink-500 fill-1">favorite</span>
+                                        Friends' Activity
+                                    </h3>
+                                </div>
+                                <button className="text-primary text-sm font-bold hover:bg-primary/5 px-4 py-2 rounded-lg transition-colors">See all</button>
+                            </div>
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
+                                <div className="group relative aspect-square rounded-[2.5rem] overflow-hidden shadow-sm border-4 border-white cursor-pointer bg-white transition-transform duration-200 hover:scale-105">
+                                    <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "linear-gradient(to top, rgba(0,0,0,0.4), transparent 40%), url('https://lh3.googleusercontent.com/aida-public/AB6AXuBq4-FA2HkVQesnz3E-KKTGxBEGA9PxW9Pm9giMwhC0QhN_VMj7KZWr2y4WBAIEeqwTpAlGD_1xdhe0Hfh3rJ50IJjtkxemp2CDsbJmbwa-XhEi0Zy-odlJlyJtjS_TGy2sElZseFmQHk-oLbiP7v3O1J1zrDmc9DdVT0HtAMtQwHtnVwt1sXTiaCS_YFNSvuTeGbvMoI5kvegkYRJVh3Yy_VzHA7dc2UM6_Wvb_eER-wu6RctKVTNQXytERwkwXEAEKj0Cv0cFRnI')" }}></div>
+                                    <div className="absolute bottom-4 left-4 right-4">
+                                        <p className="text-[11px] font-bold text-white/90 uppercase tracking-widest drop-shadow-md">Minh</p>
+                                        <p className="text-[10px] text-white/70 font-medium">2m ago</p>
+                                    </div>
+                                </div>
+                                <div className="group relative aspect-square rounded-[2.5rem] overflow-hidden shadow-sm border-4 border-white cursor-pointer bg-white transition-transform duration-200 hover:scale-105">
+                                    <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "linear-gradient(to top, rgba(0,0,0,0.4), transparent 40%), url('https://lh3.googleusercontent.com/aida-public/AB6AXuCfrJ92u8GShtWJmkIB1Vzg4LJEWyOUbX5bPppgUArhyOog4Bw3CQS1jbA9Fa0a3bkpPdL4XVeIb0a6KdeWraGk1XXp9GTIDcL5n-6HRtTYb_mwE9mymDTWpSFgwprrt6eI-vsxePhWnXKGNPt2Xd2MgWMQE_jM73QojM_bt3fQvmtvLmpqL6IYjyiP6O2S7EZzOZ2KfowcYFgh8ImxiXjEGlGFbioXs6Lryxp7tbdbM3t-6krPNdLA0ADi4SdXG90RJTJ8NI3ZSeI')" }}></div>
+                                    <div className="absolute bottom-4 left-4 right-4">
+                                        <p className="text-[11px] font-bold text-white/90 uppercase tracking-widest drop-shadow-md">An</p>
+                                        <p className="text-[10px] text-white/70 font-medium">15m ago</p>
+                                    </div>
+                                </div>
+                                <div className="group relative aspect-square rounded-[2.5rem] overflow-hidden shadow-sm border-4 border-white cursor-pointer bg-white transition-transform duration-200 hover:scale-105">
+                                    <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "linear-gradient(to top, rgba(0,0,0,0.4), transparent 40%), url('https://lh3.googleusercontent.com/aida-public/AB6AXuArJ_bgkOd-mKgm1SRKBIHYSv4RyHspRCLzHV2E_akpO1-ytCwywX_qrNf-qegbaCbWgB59k__f5rRW1rW2cCdgbKWxJAAxwIUYiwqloWioG5AHOAS_0DvVV4y1BqYyifE2iYVgZUbrEJeVFNGkpQvSITic7x9hITf1f4XPCHZfgayu4lOst93NpjfsD2N-96f8-A6Oa40AZbq6m0_for_VyaPWu-4FA8Y6JyBFAkbUaOlF2AJ1phC2jrKi2abTYHyenrixQexvXe4')" }}></div>
+                                    <div className="absolute bottom-4 left-4 right-4">
+                                        <p className="text-[11px] font-bold text-white/90 uppercase tracking-widest drop-shadow-md">Thuy</p>
+                                        <p className="text-[10px] text-white/70 font-medium">1h ago</p>
+                                    </div>
+                                </div>
+                                <div className="group relative aspect-square rounded-[2.5rem] overflow-hidden shadow-sm border-4 border-white cursor-pointer bg-white transition-transform duration-200 hover:scale-105">
+                                    <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "linear-gradient(to top, rgba(0,0,0,0.4), transparent 40%), url('https://lh3.googleusercontent.com/aida-public/AB6AXuCzeynny06rgo5GLm0Z6khSLXpBZ0ucnzukb14nPsZq_VydgN-Ncq-grvEamD0NEYD3gqYvH5bw-O5FDxLwZR0INHk2ufOXUdzHRtIpHRNlXKwWQzPIVAgzSIZatgl1ikUEPMK2iJ4NLDZQ4sAsCkGTv3_bDrXnz3l66oD7p1twq2ZUDqt6CAdCMBoPDVkP1-lj-BozeFiZM9sDaoIQqStOela9o4_AZtYf66-if1paxtFbd9c68lnjcOrnFO1krT3_Gae3msJdQwQ')" }}></div>
+                                    <div className="absolute bottom-4 left-4 right-4">
+                                        <p className="text-[11px] font-bold text-white/90 uppercase tracking-widest drop-shadow-md">Linh</p>
+                                        <p className="text-[10px] text-white/70 font-medium">3h ago</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        {/* Active Tasks */}
+                        <section className="flex flex-col gap-6">
+                            <h3 className="text-xl font-extrabold flex items-center gap-2 text-slate-800">
+                                <span className="material-symbols-outlined text-orange-400 fill-1">bolt</span>
+                                Active Tasks
+                            </h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition-all flex flex-col gap-5">
+                                    <div className="flex justify-between items-start">
+                                        <div className="bg-primary/10 text-primary p-3 rounded-2xl">
+                                            <span className="material-symbols-outlined">cleaning_services</span>
+                                        </div>
+                                        <span className="px-3 py-1 bg-pink-100 text-pink-500 text-[10px] font-black rounded-full uppercase tracking-widest">High Reward</span>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-extrabold text-lg text-slate-800">Clean Roof Gutters</h4>
+                                        <p className="text-slate-500 text-sm mt-2 leading-relaxed">Prevent water stagnation where mosquitoes can breed. Help protect 4 neighboring homes.</p>
+                                    </div>
+                                    <div className="flex justify-between items-center pt-2 mt-auto">
+                                        <div className="flex items-center gap-1.5">
+                                            <span className="material-symbols-outlined text-primary text-sm fill-1">stars</span>
+                                            <span className="text-primary font-black">+150 pts</span>
+                                        </div>
+                                        <button className="text-sm font-extrabold bg-slate-900 text-white px-5 py-2.5 rounded-xl hover:bg-slate-800 transition-colors">Start Mission</button>
+                                    </div>
+                                </div>
+                                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition-all flex flex-col gap-5">
+                                    <div className="flex justify-between items-start">
+                                        <div className="bg-orange-100 text-orange-500 p-3 rounded-2xl">
+                                            <span className="material-symbols-outlined">search_check</span>
+                                        </div>
+                                        <span className="px-3 py-1 bg-green-100 text-green-500 text-[10px] font-black rounded-full uppercase tracking-widest">Daily Quest</span>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-extrabold text-lg text-slate-800">Flower Pot Inspection</h4>
+                                        <p className="text-slate-500 text-sm mt-2 leading-relaxed">A quick check for larvae in 3 outdoor containers. Takes only 5 minutes!</p>
+                                    </div>
+                                    <div className="flex justify-between items-center pt-2 mt-auto">
+                                        <div className="flex items-center gap-1.5">
+                                            <span className="material-symbols-outlined text-primary text-sm fill-1">stars</span>
+                                            <span className="text-primary font-black">+50 pts</span>
+                                        </div>
+                                        <button className="text-sm font-extrabold bg-slate-900 text-white px-5 py-2.5 rounded-xl hover:bg-slate-800 transition-colors">Start Mission</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+
+                    <div className="col-span-12 lg:col-span-4 flex flex-col gap-8">
+                        {/* Rewards Card */}
+                        <section className="bg-white rounded-[2rem] border border-slate-100 shadow-sm p-8 relative overflow-hidden">
+                            <div className="absolute -top-10 -right-10 w-40 h-40 bg-primary/5 rounded-full blur-3xl"></div>
+                            <div className="flex justify-between items-center mb-8 relative">
+                                <h3 className="text-xl font-black text-slate-800">Your Rewards</h3>
+                                <span className="material-symbols-outlined text-slate-300 bg-slate-50 p-2 rounded-lg">wallet</span>
+                            </div>
+                            <div className="mb-10 text-center relative">
+                                <p className="text-slate-400 text-xs font-black uppercase tracking-widest mb-2">Current Impact Balance</p>
+                                <div className="flex flex-col items-center">
+                                    <span className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-br from-primary to-green-500 leading-tight">2,450</span>
+                                    <div className="flex items-center gap-2 -mt-1">
+                                        <span className="w-8 h-[1px] bg-slate-200"></span>
+                                        <span className="text-slate-500 font-bold uppercase text-[10px] tracking-[0.2em]">Available Points</span>
+                                        <span className="w-8 h-[1px] bg-slate-200"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="mb-10 bg-slate-50 p-5 rounded-2xl border border-slate-100/50">
+                                <div className="flex justify-between text-xs font-black mb-3">
+                                    <span className="text-slate-700 uppercase">Pharmacy Voucher</span>
+                                    <span className="text-primary">82%</span>
+                                </div>
+                                <div className="w-full bg-white h-4 rounded-full p-1 border border-slate-100 shadow-inner">
+                                    <div className="bg-gradient-to-r from-primary to-green-500 h-full rounded-full w-[82%] shadow-sm"></div>
+                                </div>
+                                <div className="mt-4 flex items-center justify-center gap-2">
+                                    <span className="material-symbols-outlined text-green-500 text-lg">check_circle</span>
+                                    <p className="text-[11px] text-slate-500 font-semibold italic">12 households protected this week!</p>
+                                </div>
+                            </div>
+                            <div>
+                                <p className="text-xs font-black text-slate-800 mb-4 uppercase tracking-wider flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-pink-500 text-base">confirmation_number</span>
+                                    Active Vouchers
+                                </p>
+                                <div className="flex flex-col gap-4">
+                                    <div className="bg-white p-4 rounded-2xl border-2 border-dashed border-primary/20 hover:border-primary/40 transition-colors flex items-center justify-between group">
+                                        <div className="flex items-center gap-4">
+                                            <div className="p-3 bg-slate-900 rounded-xl">
+                                                <span className="material-symbols-outlined text-white text-xl">qr_code_2</span>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-extrabold text-slate-900">10% Off Medicine</p>
+                                                <p className="text-[10px] text-slate-500 font-medium">Can Tho Pharmacy</p>
+                                            </div>
+                                        </div>
+                                        <button className="text-primary font-black text-xs uppercase hover:underline">Tap to Use</button>
+                                    </div>
+                                    <div className="bg-slate-50 p-4 rounded-2xl border-2 border-dashed border-slate-200 flex items-center justify-between opacity-60">
+                                        <div className="flex items-center gap-4">
+                                            <div className="p-3 bg-slate-300 rounded-xl">
+                                                <span className="material-symbols-outlined text-white text-xl">qr_code_2</span>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-extrabold text-slate-400">Free Insecticide</p>
+                                                <p className="text-[10px] text-slate-400 font-medium">Outreach Center</p>
+                                            </div>
+                                        </div>
+                                        <span className="text-[10px] font-black text-slate-500 bg-slate-200 px-3 py-1 rounded-full">REDEEMED</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button className="w-full mt-8 py-4 bg-slate-50 text-slate-900 border border-slate-200 font-black text-sm uppercase tracking-widest rounded-2xl hover:bg-slate-100 transition-colors">
+                                Browse Rewards Shop
+                            </button>
+                        </section>
+
+                        {/* Regional Rank */}
+                        <div className="bg-slate-900 rounded-[2rem] p-8 shadow-md text-white overflow-hidden relative">
+                            <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-primary/20 rounded-full blur-2xl"></div>
+                            <h4 className="font-black mb-4 flex items-center gap-2 text-sm uppercase tracking-widest text-slate-400">
+                                <span className="material-symbols-outlined text-green-500 text-sm">trending_up</span>
+                                Regional Rank
+                            </h4>
+                            <div className="flex justify-between items-end relative">
+                                <div className="flex flex-col">
+                                    <span className="text-4xl font-black mb-1">#14</span>
+                                    <span className="text-xs text-slate-400 font-medium">In District 1, Can Tho</span>
+                                </div>
+                                <button className="bg-white/10 backdrop-blur-md text-white border border-white/20 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white/20 transition-all">Leaderboard</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    );
+}
