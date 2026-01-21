@@ -1,5 +1,9 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { RiskGauge } from "@/components/RiskGauge";
+import { RiskMap } from "@/components/RiskMap";
+import { ChatBot } from "@/components/ChatBot";
+import { DailyQuest } from "@/components/DailyQuest";
 
 export default function CitizenDashboard() {
   return (
@@ -78,126 +82,19 @@ export default function CitizenDashboard() {
 
         <div className="grid grid-cols-12 gap-6">
           {/* Risk Gauge Card */}
-          <div className="col-span-12 lg:col-span-5 bg-white border border-border-soft shadow-sm rounded-xl p-8 flex flex-col items-center justify-center relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-4">
-              <span className="material-symbols-outlined text-slate-400">info</span>
-            </div>
-            <div className="relative size-64 flex items-center justify-center">
-              <svg className="absolute inset-0 size-full -rotate-90">
-                <circle cx="128" cy="128" fill="transparent" r="110" stroke="#f1f5f9" strokeWidth="16"></circle>
-                <circle cx="128" cy="128" fill="transparent" r="110" stroke="url(#riskGradient)" strokeDasharray="691" strokeDashoffset="124" strokeLinecap="round" strokeWidth="16"></circle>
-                <defs>
-                  <linearGradient id="riskGradient" x1="0%" x2="100%" y1="0%" y2="0%">
-                    <stop offset="0%" stopColor="#EF4444"></stop>
-                    <stop offset="100%" stopColor="#F59E0B"></stop>
-                  </linearGradient>
-                </defs>
-              </svg>
-              <div className="text-center z-10">
-                <span className="text-6xl font-black tracking-tighter text-charcoal">82%</span>
-                <p className="text-risk-high font-bold tracking-widest uppercase text-xs mt-1">High Risk</p>
-              </div>
-            </div>
-            <div className="mt-8 text-center max-w-sm">
-              <h3 className="text-xl font-bold mb-2 text-charcoal">Outbreak Probability</h3>
-              <p className="text-sm text-slate-500 leading-relaxed">Probability has increased by <span className="text-risk-high font-bold">+12%</span> this week due to humidity and stagnant water detected.</p>
-            </div>
-            <div className="grid grid-cols-2 gap-4 w-full mt-8">
-              <div className="p-4 rounded-xl bg-slate-50 border border-border-soft">
-                <p className="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Confidence Score</p>
-                <p className="text-lg font-bold text-primary">High (94%)</p>
-              </div>
-              <div className="p-4 rounded-xl bg-slate-50 border border-border-soft">
-                <p className="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Last Update</p>
-                <p className="text-lg font-bold text-charcoal">4m ago</p>
-              </div>
-            </div>
+          <div className="col-span-12 lg:col-span-5">
+            <RiskGauge />
           </div>
 
           {/* Sentinel Heatmap Card */}
-          <div className="col-span-12 lg:col-span-7 bg-white border border-border-soft shadow-sm rounded-xl overflow-hidden flex flex-col">
-            <div className="p-6 flex items-center justify-between border-b border-border-soft bg-white">
-              <h3 className="font-bold flex items-center gap-2 text-charcoal">
-                <span className="material-symbols-outlined text-primary">explore</span>
-                Sentinel Heatmap: Mekong Delta
-              </h3>
-              <div className="flex gap-1 p-1 bg-slate-100 rounded-lg">
-                <button className="px-4 py-1.5 rounded-md text-slate-500 text-xs font-bold hover:bg-white hover:text-charcoal transition-all">Provincial</button>
-                <button className="px-4 py-1.5 rounded-md bg-white text-primary shadow-sm text-xs font-bold">District</button>
-              </div>
-            </div>
-            <div className="flex-1 bg-slate-50 relative min-h-[400px]">
-              <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuC4dYjtAdNnqWz_HVwo5QxDfltJDCvTY2JYyy9yb4R6VtT4z4yecWNiNOCkthEPQbRRX2KuAXFVPvG98N3sRLjk05RScvSsHfZPr-ia_To9SY2gZjfABVerThrqi_wnwCfzN2S911zzZQfQhNfrTWq1a0hcC0dLk_IEBd2uh88AwqM8XB7BhvJ1ggxc7x0twVTLBeiVyu1HFHTaK9J5zpq0U9Kx2I65JSDmdwlftPpU1TNow0t3kD8T0QGT2U94FNqZ9R5e00_QbW8')", opacity: 0.6 }}></div>
-              <div className="absolute top-1/3 left-1/4 size-24 bg-risk-high/40 rounded-full blur-xl animate-pulse"></div>
-              <div className="absolute top-1/2 left-1/2 size-32 bg-risk-high/50 rounded-full blur-2xl animate-pulse"></div>
-              <div className="absolute top-1/4 right-1/4 size-16 bg-risk-med/40 rounded-full blur-xl animate-pulse"></div>
-              <div className="absolute bottom-6 right-6 flex flex-col gap-2">
-                <button className="size-10 bg-white border border-border-soft shadow-lg rounded-lg flex items-center justify-center font-bold text-charcoal hover:bg-slate-50 transition-colors">+</button>
-                <button className="size-10 bg-white border border-border-soft shadow-lg rounded-lg flex items-center justify-center font-bold text-charcoal hover:bg-slate-50 transition-colors">-</button>
-              </div>
-            </div>
+          <div className="col-span-12 lg:col-span-7 h-[500px]">
+            <RiskMap />
           </div>
 
           {/* Daily Quests */}
-          <div className="col-span-12 lg:col-span-8 bg-white border border-border-soft shadow-sm rounded-xl p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h3 className="text-xl font-bold text-charcoal">Daily Quests</h3>
-                <p className="text-sm text-slate-500">Earn rewards for local prevention</p>
-              </div>
-              <div className="text-right">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Season Progress</p>
-                <div className="w-32 h-2.5 bg-slate-100 rounded-full mt-1.5 overflow-hidden">
-                  <div className="bg-primary h-full w-[65%] rounded-full"></div>
-                </div>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <div className="flex items-center gap-4 p-4 rounded-xl border border-border-soft hover:border-primary/30 hover:bg-slate-50 transition-all group">
-                <div className="size-12 rounded-xl bg-risk-low/10 flex items-center justify-center text-risk-low">
-                  <span className="material-symbols-outlined">water_drop</span>
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-bold text-charcoal">Clear Standing Water</h4>
-                  <p className="text-sm text-slate-500">Check garden pots and discarded containers</p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span className="text-primary font-bold">+50 pts</span>
-                  <button className="size-10 rounded-full bg-primary flex items-center justify-center text-white transition-transform active:scale-90 shadow-lg shadow-primary/20">
-                    <span className="material-symbols-outlined">photo_camera</span>
-                  </button>
-                </div>
-              </div>
-              <div className="flex items-center gap-4 p-4 rounded-xl border border-border-soft hover:border-primary/30 hover:bg-slate-50 transition-all group">
-                <div className="size-12 rounded-xl bg-risk-med/10 flex items-center justify-center text-risk-med">
-                  <span className="material-symbols-outlined">dataset</span>
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-bold text-charcoal">Verify Water Storage Lid</h4>
-                  <p className="text-sm text-slate-500">Ensure large water vats are tightly covered</p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span className="text-primary font-bold">+100 pts</span>
-                  <button className="size-10 rounded-full bg-primary flex items-center justify-center text-white transition-transform active:scale-90 shadow-lg shadow-primary/20">
-                    <span className="material-symbols-outlined">photo_camera</span>
-                  </button>
-                </div>
-              </div>
-              <div className="flex items-center gap-4 p-4 rounded-xl border border-border-soft hover:border-primary/30 hover:bg-slate-50 transition-all group">
-                <div className="size-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                  <span className="material-symbols-outlined">campaign</span>
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-bold text-charcoal">Neighborhood Alert</h4>
-                  <p className="text-sm text-slate-500">Share prevention tips with 3 neighbors</p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span className="text-primary font-bold">+30 pts</span>
-                  <button className="h-10 px-6 rounded-full bg-slate-800 text-white font-bold text-sm hover:bg-charcoal transition-colors">Verify</button>
-                </div>
-              </div>
-            </div>
-          </div>
+          <DailyQuest />
+
+          {/* Community Feed */}
 
           {/* Community Feed */}
           <div className="col-span-12 lg:col-span-4 bg-white border border-border-soft shadow-sm rounded-xl p-6">
@@ -243,19 +140,7 @@ export default function CitizenDashboard() {
       </main>
 
       {/* Floating AI Assistant */}
-      <div className="fixed bottom-8 right-8 group z-50">
-        <div className="absolute bottom-full right-0 mb-4 w-72 p-5 bg-white border border-border-soft rounded-2xl opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 transition-all shadow-xl">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="size-2 bg-risk-low rounded-full"></span>
-            <span className="text-[10px] font-bold text-slate-400 uppercase">AI Assistant Online</span>
-          </div>
-          <p className="text-sm leading-relaxed text-charcoal">&quot;Hello! I&apos;m Sentinel AI. Need advice on prevention or identifying symptoms?&quot;</p>
-        </div>
-        <button className="size-16 rounded-full bg-charcoal text-white shadow-xl flex items-center justify-center hover:scale-105 hover:bg-black active:scale-95 transition-all">
-          <span className="material-symbols-outlined text-3xl font-bold">smart_toy</span>
-          <span className="absolute -top-1 -right-1 size-4 bg-risk-low rounded-full border-4 border-slate-50"></span>
-        </button>
-      </div>
+      <ChatBot />
     </div>
   );
 }
