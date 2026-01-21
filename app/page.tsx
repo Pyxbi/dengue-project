@@ -1,9 +1,17 @@
+"use client";
+
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { cn } from "@/lib/utils";
 import { RiskGauge } from "@/components/RiskGauge";
-import { RiskMap } from "@/components/RiskMap";
 import { ChatBot } from "@/components/ChatBot";
 import { DailyQuest } from "@/components/DailyQuest";
+
+// Dynamically import RiskMap with SSR disabled (Leaflet requires window)
+const RiskMap = dynamic(() => import("@/components/RiskMap").then(mod => ({ default: mod.RiskMap })), {
+  ssr: false,
+  loading: () => <div className="w-full h-full bg-slate-100 rounded-2xl animate-pulse" />
+});
 
 export default function CitizenDashboard() {
   return (
