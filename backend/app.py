@@ -9,7 +9,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app)
+# Enable CORS for all routes (Railway deployment)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 # Load trained model (or use rule-based)
 try:
