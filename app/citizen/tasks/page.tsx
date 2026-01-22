@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { Loader2, CheckCircle2, Camera, X, Sparkles } from "lucide-react";
+import { Loader2, CheckCircle2, Camera, X, Sparkles, Menu } from "lucide-react";
 
 // Task points mapping
 const TASK_POINTS: Record<string, number> = {
@@ -19,6 +19,7 @@ export default function TaskCenter() {
     const [verified, setVerified] = useState<string | null>(null);
     const [totalPoints, setTotalPoints] = useState(1240); // Base points
     const [earnedPoints, setEarnedPoints] = useState(0); // Points earned this session
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Load points from localStorage on mount
@@ -95,45 +96,94 @@ export default function TaskCenter() {
     };
 
     return (
-        <div className="flex flex-col min-h-screen bg-slate-50 text-slate-800 font-sans">
-            {/* Header */}
-            <header className="flex items-center justify-between border-b border-slate-100 px-10 py-5 bg-white/80 backdrop-blur-md sticky top-0 z-50">
-                <div className="flex items-center gap-8">
-                    <Link href="/" className="flex items-center gap-3 text-primary hover:opacity-80 transition-opacity">
-                        <div className="size-10 bg-primary/10 rounded-xl flex items-center justify-center">
-                            <span className="material-symbols-outlined text-primary font-bold">shield_with_heart</span>
-                        </div>
-                        <h2 className="text-slate-900 text-xl font-extrabold leading-tight tracking-tight">Mekong <span className="text-primary">Sentinel</span></h2>
-                    </Link>
-                    <nav className="hidden md:flex items-center gap-8">
-                        <Link href="/citizen/map" className="text-slate-500 hover:text-primary text-sm font-bold transition-colors">Map</Link>
-                        <Link href="/citizen/tasks" className="text-primary text-sm font-extrabold relative">
-                            Task Center
-                            <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-primary"></span>
-                        </Link>
-                        <Link href="/citizen/impact" className="text-slate-500 hover:text-primary text-sm font-bold transition-colors">Impact</Link>
-                        <Link href="/citizen/community" className="text-slate-500 hover:text-primary text-sm font-bold transition-colors">Community</Link>
-                    </nav>
+        <div className="flex min-h-screen bg-slate-50 text-charcoal relative">
+            {/* Mobile Header */}
+            <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-border-soft flex items-center justify-between px-4 z-50">
+                <div className="flex items-center gap-3">
+                    <div className="size-8 bg-primary rounded-lg flex items-center justify-center text-white">
+                        <span className="material-symbols-outlined font-bold text-lg">query_stats</span>
+                    </div>
+                    <span className="font-bold text-charcoal">Dengue Sentinel</span>
                 </div>
-                <div className="flex items-center gap-5">
-                    <div className="flex items-center gap-2 bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/10 px-4 py-2 rounded-full relative">
-                        <span className="material-symbols-outlined text-primary text-lg fill-1">stars</span>
-                        <span className="text-primary font-extrabold text-sm">{totalPoints.toLocaleString()} pts</span>
+                <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/10 px-3 py-1.5 rounded-full relative">
+                        <span className="material-symbols-outlined text-primary text-sm fill-1">stars</span>
+                        <span className="text-primary font-extrabold text-xs">{totalPoints.toLocaleString()} pts</span>
                         {earnedPoints > 0 && (
-                            <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-bounce">
+                            <span className="absolute -top-2 -right-2 bg-green-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full animate-bounce">
                                 +{earnedPoints}
                             </span>
                         )}
                     </div>
-                    <button className="p-2.5 rounded-xl bg-slate-50 text-slate-500 border border-slate-100">
-                        <span className="material-symbols-outlined text-xl">notifications</span>
+                    <button
+                        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                        className="p-2 hover:bg-slate-100 rounded-lg text-slate-600"
+                    >
+                        {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
                     </button>
-                    <div className="bg-center bg-no-repeat aspect-square bg-cover rounded-2xl size-10 ring-4 ring-slate-50" style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuD36ZbbE5-8QM-ezBlAYS1LlkOdyl-2aNxedi7PIsZ0Z_qw0EvKUmkf4E4CG__DaeWuvSwfELzXF_pTgAn4D_d9fjpMg_Pv1NTEUTwLTrcdSZcuujEdD0oJ8BG8r8VFAA5BzsFAVex0zNLb6m0MmboydxfbcG3HCfMDbUab-yfMiM1ZaK0gP5_QwWT63RSpoMPVq_4-hTPhQjvAbBG7nhWTgz8sJdJkmCpMocXA9hJ0NvN_v542PLrUt3sde5uyhATxAd_tr_mVfug')" }}></div>
                 </div>
-            </header>
+            </div>
+
+            {/* Sidebar Overlay */}
+            {isSidebarOpen && (
+                <div
+                    className="lg:hidden fixed inset-0 bg-black/50 z-40"
+                    onClick={() => setIsSidebarOpen(false)}
+                />
+            )}
+
+            {/* Sidebar */}
+            <aside className={cn(
+                "fixed lg:sticky top-0 h-screen bg-white border-r border-border-soft flex-col transition-transform duration-300 z-50 w-72 lg:translate-x-0",
+                isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+            )}>
+                <div className="p-6 flex items-center gap-3">
+                    <div className="size-10 bg-primary rounded-xl flex items-center justify-center text-white">
+                        <span className="material-symbols-outlined font-bold">query_stats</span>
+                    </div>
+                    <div>
+                        <h1 className="text-lg font-bold tracking-tight text-charcoal">Dengue Sentinel</h1>
+                        <p className="text-xs text-slate-500">Mekong Delta Hub</p>
+                    </div>
+                </div>
+
+                <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
+                    <Link href="/" onClick={() => setIsSidebarOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition-colors">
+                        <span className="material-symbols-outlined">dashboard</span>
+                        <span className="font-medium">Dashboard</span>
+                    </Link>
+                    <Link href="/citizen/map" onClick={() => setIsSidebarOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition-colors">
+                        <span className="material-symbols-outlined">map</span>
+                        <span className="font-medium">Sentinel Map</span>
+                    </Link>
+                    <Link href="/citizen/tasks" onClick={() => setIsSidebarOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/10 text-primary">
+                        <span className="material-symbols-outlined">assignment_turned_in</span>
+                        <span className="font-semibold">Task Center</span>
+                    </Link>
+                    <Link href="/citizen/rewards" onClick={() => setIsSidebarOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition-colors">
+                        <span className="material-symbols-outlined">military_tech</span>
+                        <span className="font-medium">Rewards</span>
+                    </Link>
+                    <Link href="/settings" onClick={() => setIsSidebarOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition-colors">
+                        <span className="material-symbols-outlined">settings</span>
+                        <span className="font-medium">Settings</span>
+                    </Link>
+                </nav>
+
+                <div className="p-4 border-t border-border-soft space-y-2">
+                    <div className="text-[10px] uppercase font-bold text-slate-400 px-2">Demo Switches</div>
+                    <Link href="/manager" className="block text-xs font-medium text-slate-500 hover:text-primary px-2">→ CDC Manager View</Link>
+                    <Link href="/hospital" className="block text-xs font-medium text-slate-500 hover:text-primary px-2">→ Hospital View</Link>
+
+                    <button className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-transform active:scale-95 shadow-md shadow-primary/20 mt-4">
+                        <span className="material-symbols-outlined">add_a_photo</span>
+                        Report Sighting
+                    </button>
+                </div>
+            </aside>
 
             {/* Main Content */}
-            <main className="max-w-[1280px] mx-auto w-full px-8 py-10">
+            <main className="flex-1 p-4 lg:p-8 overflow-y-auto mt-16 lg:mt-0 w-full">
                 {/* Hidden camera input */}
                 <input
                     ref={fileInputRef}
