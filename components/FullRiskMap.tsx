@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2, Navigation, Map as MapIcon, ChevronRight } from "lucide-react";
+import { Loader2, Navigation, Map as MapIcon, ChevronRight, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { MapContainer, TileLayer, Circle, Popup, Marker, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility";
@@ -207,9 +208,14 @@ export default function FullRiskMap() {
                 </div>
             </div>
 
-            <a href="/" className="absolute top-4 right-4 z-20 sm:hidden bg-white/90 p-2 rounded-full shadow-lg text-slate-600">
-                <ChevronRight className="w-6 h-6 rotate-180" />
-            </a>
+            {/* Back to Home Button - Bottom Left */}
+            <Link 
+                href="/" 
+                className="absolute bottom-8 left-4 z-20 bg-white/90 backdrop-blur-md px-4 py-3 rounded-full shadow-lg border border-white/20 text-slate-600 hover:bg-white hover:text-primary transition-all flex items-center gap-2 font-medium sm:bottom-8 sm:left-8"
+            >
+                <Home className="w-5 h-5" />
+                <span>Home</span>
+            </Link>
         </div>
     );
 }

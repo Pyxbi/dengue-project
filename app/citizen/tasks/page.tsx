@@ -1,7 +1,99 @@
+"use client";
+
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { Loader2, CheckCircle2, Camera, X, Sparkles } from "lucide-react";
+
+// Task points mapping
+const TASK_POINTS: Record<string, number> = {
+    'general': 50,
+    'gutter': 150,
+    'flowerpot': 50,
+};
 
 export default function TaskCenter() {
+    const [activeTask, setActiveTask] = useState<string | null>(null);
+    const [capturedImage, setCapturedImage] = useState<string | null>(null);
+    const [verifying, setVerifying] = useState(false);
+    const [verified, setVerified] = useState<string | null>(null);
+    const [totalPoints, setTotalPoints] = useState(1240); // Base points
+    const [earnedPoints, setEarnedPoints] = useState(0); // Points earned this session
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Load points from localStorage on mount
+    useEffect(() => {
+        const savedPoints = localStorage.getItem('userPoints');
+        if (savedPoints) {
+            setTotalPoints(parseInt(savedPoints, 10));
+        }
+    }, []);
+
+    // Save points to localStorage when they change
+    useEffect(() => {
+        localStorage.setItem('userPoints', totalPoints.toString());
+    }, [totalPoints]);
+
+    const handleStartMission = (taskId: string) => {
+        setActiveTask(taskId);
+        // Trigger camera/file picker
+        fileInputRef.current?.click();
+    };
+
+    const handleFileCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setCapturedImage(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleVerifyTask = async () => {
+        if (!capturedImage || !activeTask) return;
+        setVerifying(true);
+
+        try {
+            const res = await fetch("http://localhost:5328/api/tasks/verify", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    user_id: "user_123",
+                    task_id: activeTask,
+                    image: capturedImage
+                })
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                if (data.verified) {
+                    // Add points for completed task
+                    const pointsToAdd = TASK_POINTS[activeTask] || 50;
+                    setTotalPoints(prev => prev + pointsToAdd);
+                    setEarnedPoints(pointsToAdd);
+                    
+                    setVerified(activeTask);
+                    setCapturedImage(null);
+                    setActiveTask(null);
+                    
+                    // Clear earned points notification after 3 seconds
+                    setTimeout(() => setEarnedPoints(0), 3000);
+                }
+            }
+        } catch (error) {
+            console.error("Verification failed", error);
+        } finally {
+            setVerifying(false);
+        }
+    };
+
+    const handleCancelCapture = () => {
+        setCapturedImage(null);
+        setActiveTask(null);
+    };
+
     return (
         <div className="flex flex-col min-h-screen bg-slate-50 text-slate-800 font-sans">
             {/* Header */}
@@ -24,9 +116,14 @@ export default function TaskCenter() {
                     </nav>
                 </div>
                 <div className="flex items-center gap-5">
-                    <div className="flex items-center gap-2 bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/10 px-4 py-2 rounded-full">
+                    <div className="flex items-center gap-2 bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/10 px-4 py-2 rounded-full relative">
                         <span className="material-symbols-outlined text-primary text-lg fill-1">stars</span>
-                        <span className="text-primary font-extrabold text-sm">2,450 pts</span>
+                        <span className="text-primary font-extrabold text-sm">{totalPoints.toLocaleString()} pts</span>
+                        {earnedPoints > 0 && (
+                            <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-bounce">
+                                +{earnedPoints}
+                            </span>
+                        )}
                     </div>
                     <button className="p-2.5 rounded-xl bg-slate-50 text-slate-500 border border-slate-100">
                         <span className="material-symbols-outlined text-xl">notifications</span>
@@ -37,14 +134,89 @@ export default function TaskCenter() {
 
             {/* Main Content */}
             <main className="max-w-[1280px] mx-auto w-full px-8 py-10">
+                {/* Hidden camera input */}
+                <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    className="hidden"
+                    onChange={handleFileCapture}
+                />
+
+                {/* Camera Preview Modal */}
+                {capturedImage && (
+                    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                        <div className="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl">
+                            <div className="relative">
+                                <img src={capturedImage} alt="Captured" className="w-full aspect-square object-cover" />
+                                <button
+                                    onClick={handleCancelCapture}
+                                    className="absolute top-4 right-4 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+                            <div className="p-6">
+                                <h3 className="text-xl font-bold text-slate-800 mb-2">Verify Your Task</h3>
+                                <p className="text-slate-500 text-sm mb-6">Our AI will analyze your photo to confirm task completion.</p>
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={handleCancelCapture}
+                                        className="flex-1 py-3 px-4 border border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-50 transition-colors"
+                                    >
+                                        Retake
+                                    </button>
+                                    <button
+                                        onClick={handleVerifyTask}
+                                        disabled={verifying}
+                                        className="flex-1 py-3 px-4 bg-primary text-white rounded-xl font-bold hover:brightness-105 transition-all flex items-center justify-center gap-2 disabled:opacity-70"
+                                    >
+                                        {verifying ? (
+                                            <>
+                                                <Loader2 className="w-5 h-5 animate-spin" />
+                                                Verifying...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <CheckCircle2 className="w-5 h-5" />
+                                                Submit
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Success Toast */}
+                {verified && (
+                    <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-4 rounded-2xl shadow-lg flex items-center gap-4 animate-in slide-in-from-top-4">
+                        <div className="bg-white/20 p-2 rounded-full">
+                            <Sparkles className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <p className="font-bold text-lg">+{TASK_POINTS[verified] || 50} Points Earned! 🎉</p>
+                            <p className="text-sm text-green-100">Task verified! Total: {totalPoints.toLocaleString()} pts</p>
+                        </div>
+                        <button onClick={() => setVerified(null)} className="ml-2 hover:bg-white/20 p-2 rounded-lg transition-colors">
+                            <X className="w-5 h-5" />
+                        </button>
+                    </div>
+                )}
+
                 <div className="flex flex-wrap justify-between items-center gap-6 mb-12">
                     <div className="flex flex-col gap-2">
                         <h1 className="text-slate-900 text-4xl font-black tracking-tight">Daily Missions</h1>
                         <p className="text-slate-500 text-lg font-medium">Protect your community, earn rewards, and keep the Delta healthy.</p>
                     </div>
                     <div>
-                        <button className="flex items-center justify-center rounded-2xl h-14 px-8 bg-primary text-white font-bold text-lg hover:brightness-105 transition-all shadow-md group">
-                            <span className="material-symbols-outlined mr-3 text-2xl">photo_camera</span>
+                        <button 
+                            onClick={() => handleStartMission('general')}
+                            className="flex items-center justify-center rounded-2xl h-14 px-8 bg-primary text-white font-bold text-lg hover:brightness-105 transition-all shadow-md group"
+                        >
+                            <Camera className="w-6 h-6 mr-3" />
                             Complete New Task
                         </button>
                     </div>
@@ -118,7 +290,18 @@ export default function TaskCenter() {
                                             <span className="material-symbols-outlined text-primary text-sm fill-1">stars</span>
                                             <span className="text-primary font-black">+150 pts</span>
                                         </div>
-                                        <button className="text-sm font-extrabold bg-slate-900 text-white px-5 py-2.5 rounded-xl hover:bg-slate-800 transition-colors">Start Mission</button>
+                                        {verified === 'gutter' ? (
+                                            <span className="text-sm font-extrabold bg-green-100 text-green-600 px-5 py-2.5 rounded-xl flex items-center gap-2">
+                                                <CheckCircle2 className="w-4 h-4" /> Completed
+                                            </span>
+                                        ) : (
+                                            <button 
+                                                onClick={() => handleStartMission('gutter')}
+                                                className="text-sm font-extrabold bg-slate-900 text-white px-5 py-2.5 rounded-xl hover:bg-slate-800 transition-colors flex items-center gap-2"
+                                            >
+                                                <Camera className="w-4 h-4" /> Start Mission
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                                 <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition-all flex flex-col gap-5">
@@ -137,7 +320,18 @@ export default function TaskCenter() {
                                             <span className="material-symbols-outlined text-primary text-sm fill-1">stars</span>
                                             <span className="text-primary font-black">+50 pts</span>
                                         </div>
-                                        <button className="text-sm font-extrabold bg-slate-900 text-white px-5 py-2.5 rounded-xl hover:bg-slate-800 transition-colors">Start Mission</button>
+                                        {verified === 'flowerpot' ? (
+                                            <span className="text-sm font-extrabold bg-green-100 text-green-600 px-5 py-2.5 rounded-xl flex items-center gap-2">
+                                                <CheckCircle2 className="w-4 h-4" /> Completed
+                                            </span>
+                                        ) : (
+                                            <button 
+                                                onClick={() => handleStartMission('flowerpot')}
+                                                className="text-sm font-extrabold bg-slate-900 text-white px-5 py-2.5 rounded-xl hover:bg-slate-800 transition-colors flex items-center gap-2"
+                                            >
+                                                <Camera className="w-4 h-4" /> Start Mission
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             </div>

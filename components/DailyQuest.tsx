@@ -120,6 +120,7 @@ export function DailyQuest() {
                                 <input
                                     type="file"
                                     accept="image/*"
+                                    capture="environment"
                                     className="hidden"
                                     id="task-upload"
                                     onChange={(e) => {

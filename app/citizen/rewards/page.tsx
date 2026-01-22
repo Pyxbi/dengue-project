@@ -24,9 +24,21 @@ export default function RewardsPage() {
                 const res = await fetch("http://localhost:5328/api/vouchers");
                 const data = await res.json();
                 setVouchers(data.vouchers);
-                setUserPoints(data.user_points);
+                
+                // Check localStorage first, then fallback to API
+                const savedPoints = localStorage.getItem('userPoints');
+                if (savedPoints) {
+                    setUserPoints(parseInt(savedPoints, 10));
+                } else {
+                    setUserPoints(data.user_points);
+                }
             } catch (error) {
                 console.error("Failed to fetch vouchers", error);
+                // Still try to load points from localStorage
+                const savedPoints = localStorage.getItem('userPoints');
+                if (savedPoints) {
+                    setUserPoints(parseInt(savedPoints, 10));
+                }
             } finally {
                 setLoading(false);
             }
@@ -52,7 +64,10 @@ export default function RewardsPage() {
 
             if (res.ok) {
                 const data = await res.json();
-                setUserPoints(data.new_balance);
+                const newBalance = userPoints - cost;
+                setUserPoints(newBalance);
+                // Save to localStorage so it syncs across pages
+                localStorage.setItem('userPoints', newBalance.toString());
                 setQrCode(data.qr_code);
                 setShowQR(true);
             }
