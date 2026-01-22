@@ -1,11 +1,11 @@
-"use client";
-
+import { useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { cn } from "@/lib/utils";
 import { RiskGauge } from "@/components/RiskGauge";
 import { ChatBot } from "@/components/ChatBot";
 import { DailyQuest } from "@/components/DailyQuest";
+import { Menu, X } from "lucide-react";
 
 // Dynamically import RiskMap with SSR disabled (Leaflet requires window)
 const RiskMap = dynamic(() => import("@/components/RiskMap").then(mod => ({ default: mod.RiskMap })), {
@@ -14,10 +14,39 @@ const RiskMap = dynamic(() => import("@/components/RiskMap").then(mod => ({ defa
 });
 
 export default function CitizenDashboard() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   return (
-    <div className="flex min-h-screen bg-slate-50 text-charcoal">
+    <div className="flex min-h-screen bg-slate-50 text-charcoal relative">
+      {/* Mobile Header */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-border-soft flex items-center justify-between px-4 z-50">
+        <div className="flex items-center gap-3">
+          <div className="size-8 bg-primary rounded-lg flex items-center justify-center text-white">
+            <span className="material-symbols-outlined font-bold text-lg">query_stats</span>
+          </div>
+          <span className="font-bold text-charcoal">Dengue Sentinel</span>
+        </div>
+        <button
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          className="p-2 hover:bg-slate-100 rounded-lg text-slate-600"
+        >
+          {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+      </div>
+
+      {/* Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black/50 z-40"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-72 border-r border-border-soft flex flex-col h-screen sticky top-0 bg-white">
+      <aside className={cn(
+        "fixed lg:sticky top-0 h-screen bg-white border-r border-border-soft flex-col transition-transform duration-300 z-50 w-72 lg:translate-x-0",
+        isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+      )}>
         <div className="p-6 flex items-center gap-3">
           <div className="size-10 bg-primary rounded-xl flex items-center justify-center text-white">
             <span className="material-symbols-outlined font-bold">query_stats</span>
@@ -28,24 +57,24 @@ export default function CitizenDashboard() {
           </div>
         </div>
 
-        <nav className="flex-1 px-4 py-4 space-y-1">
-          <Link href="/" className="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/10 text-primary">
+        <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
+          <Link href="/" onClick={() => setIsSidebarOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/10 text-primary">
             <span className="material-symbols-outlined">dashboard</span>
             <span className="font-semibold">Dashboard</span>
           </Link>
-          <Link href="/citizen/map" className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition-colors">
+          <Link href="/citizen/map" onClick={() => setIsSidebarOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition-colors">
             <span className="material-symbols-outlined">map</span>
             <span className="font-medium">Sentinel Map</span>
           </Link>
-          <Link href="/citizen/tasks" className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition-colors">
+          <Link href="/citizen/tasks" onClick={() => setIsSidebarOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition-colors">
             <span className="material-symbols-outlined">assignment_turned_in</span>
             <span className="font-medium">Task Center</span>
           </Link>
-          <Link href="/citizen/rewards" className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition-colors">
+          <Link href="/citizen/rewards" onClick={() => setIsSidebarOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition-colors">
             <span className="material-symbols-outlined">military_tech</span>
             <span className="font-medium">Rewards</span>
           </Link>
-          <Link href="/settings" className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition-colors">
+          <Link href="/settings" onClick={() => setIsSidebarOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 transition-colors">
             <span className="material-symbols-outlined">settings</span>
             <span className="font-medium">Settings</span>
           </Link>
@@ -65,13 +94,13 @@ export default function CitizenDashboard() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-8 overflow-y-auto">
-        <header className="flex items-center justify-between mb-8">
+      <main className="flex-1 p-4 lg:p-8 overflow-y-auto mt-16 lg:mt-0 w-full">
+        <header className="flex flex-col lg:flex-row lg:items-center justify-between mb-6 lg:mb-8 gap-4">
           <div>
-            <h2 className="text-3xl font-extrabold tracking-tight text-charcoal">Good morning, An</h2>
-            <p className="text-slate-500">Can Tho City, Vietnam • Current Risk: <span className="text-risk-high font-bold">High</span></p>
+            <h2 className="text-2xl lg:text-3xl font-extrabold tracking-tight text-charcoal">Good morning, An</h2>
+            <p className="text-sm lg:text-base text-slate-500">Can Tho City, Vietnam • Current Risk: <span className="text-risk-high font-bold">High</span></p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 self-end lg:self-auto">
             <div className="relative">
               <button className="size-11 rounded-xl bg-white border border-border-soft shadow-sm flex items-center justify-center text-slate-500 hover:text-primary transition-colors">
                 <span className="material-symbols-outlined">notifications</span>
@@ -95,14 +124,12 @@ export default function CitizenDashboard() {
           </div>
 
           {/* Sentinel Heatmap Card */}
-          <div className="col-span-12 lg:col-span-7 h-[500px]">
+          <div className="col-span-12 lg:col-span-7 h-[400px] lg:h-[500px]">
             <RiskMap />
           </div>
 
           {/* Daily Quests */}
           <DailyQuest />
-
-          {/* Community Feed */}
 
           {/* Community Feed */}
           <div className="col-span-12 lg:col-span-4 bg-white border border-border-soft shadow-sm rounded-xl p-6">

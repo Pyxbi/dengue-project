@@ -39,7 +39,7 @@ export function DailyQuest() {
         }
     };
 
-    const handleVerify = async () => {
+    const handleVerify = async (imageBase64: string) => {
         if (!task) return;
         setVerifying(true);
 
@@ -50,7 +50,7 @@ export function DailyQuest() {
                 body: JSON.stringify({
                     user_id: "user_123",
                     task_id: task.task_id,
-                    image: "base64_placeholder"
+                    image: imageBase64
                 })
             });
 
@@ -96,8 +96,8 @@ export function DailyQuest() {
 
             <div className="space-y-4">
                 <div className={`flex items-center gap-4 p-4 rounded-xl border transition-all group ${task.status === 'completed'
-                        ? "bg-green-50 border-green-200"
-                        : "border-border-soft hover:border-primary/30 hover:bg-slate-50"
+                    ? "bg-green-50 border-green-200"
+                    : "border-border-soft hover:border-primary/30 hover:bg-slate-50"
                     }`}>
                     <div className={`size-12 rounded-xl flex items-center justify-center ${task.status === 'completed' ? "bg-green-100 text-green-600" : "bg-primary/10 text-primary"
                         }`}>
@@ -116,13 +116,31 @@ export function DailyQuest() {
                         <span className="text-primary font-bold">+{task.reward_points} pts</span>
 
                         {task.status !== 'completed' && (
-                            <Button
-                                onClick={handleVerify}
-                                disabled={verifying}
-                                className="size-10 rounded-full bg-primary flex items-center justify-center text-white p-0 hover:bg-primary/90"
-                            >
-                                {verifying ? <Loader2 className="animate-spin" /> : <Camera />}
-                            </Button>
+                            <div className="relative">
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    id="task-upload"
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                            const reader = new FileReader();
+                                            reader.onloadend = () => {
+                                                handleVerify(reader.result as string);
+                                            };
+                                            reader.readAsDataURL(file);
+                                        }
+                                    }}
+                                />
+                                <Button
+                                    onClick={() => document.getElementById('task-upload')?.click()}
+                                    disabled={verifying}
+                                    className="size-10 rounded-full bg-primary flex items-center justify-center text-white p-0 hover:bg-primary/90"
+                                >
+                                    {verifying ? <Loader2 className="animate-spin" /> : <Camera />}
+                                </Button>
+                            </div>
                         )}
                     </div>
                 </div>

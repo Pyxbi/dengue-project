@@ -392,34 +392,44 @@ def verify_daily_task():
     data = request.json
     user_id = data.get('user_id', 'user_123')
     task_id = data.get('task_id')
-    image_base64 = data.get('image') # Not processing this for mock
+    image_base64 = data.get('image') 
     
+    if not image_base64:
+        return jsonify({"verified": False, "message": "No image provided. Please upload a photo to verify."}), 400
+
     # Simulate AI processing time/logic
     # In a real app, decode base64 and pass to model
+    # For now, we trust the user if they send an image
     
-    verified = True # Always verified for demo
+    verified = True 
     
     date_str = datetime.date.today().isoformat()
     
     conn = sqlite3.connect('dengue.db')
     c = conn.cursor()
     
+    # Check if already completed to avoid double counting
+    c.execute("SELECT status FROM user_daily_tasks WHERE user_id=? AND task_id=? AND date=?", (user_id, task_id, date_str))
+    existing = c.fetchone()
+    if existing and existing[0] == 'completed':
+         conn.close()
+         return jsonify({"verified": True, "points_earned": 0, "message": "Task already completed!"})
+
     if verified:
         c.execute("UPDATE user_daily_tasks SET status='completed' WHERE user_id=? AND task_id=? AND date=?", 
                   (user_id, task_id, date_str))
         conn.commit()
         
-        # Get points
-        c.execute("SELECT rowid FROM user_daily_tasks WHERE user_id=? AND task_id=? AND date=?", 
-                   (user_id, task_id, date_str)) # Just checking row existence
-        
-        # Find points (simplified)
+        # Find points (from pools)
         points = 0
+        found_task = False
         for pool in TASK_POOLS.values():
              for t in pool:
                 if t['id'] == task_id:
                     points = t['points']
+                    found_task = True
                     break
+             if found_task: break
         
         conn.close()
         return jsonify({
@@ -430,6 +440,43 @@ def verify_daily_task():
     else:
         conn.close()
         return jsonify({"verified": False, "message": "Could not verify the action. Please try again."})
+
+
+@app.route('/api/vouchers')
+def get_vouchers():
+    # Mock Vouchers
+    vouchers = [
+        {"id": "V1", "title": "50% Off Mosquito Net", "points": 500, "merchant": "Pharmacity"},
+        {"id": "V2", "title": "Free Coffee", "points": 200, "merchant": "Highlands Coffee"},
+        {"id": "V3", "title": "Cinema Ticket", "points": 1000, "merchant": "CGV Cinemas"},
+        {"id": "V4", "title": "Grab Bike 20k Off", "points": 300, "merchant": "Grab"},
+        {"id": "V5", "title": "Free Dengue Rapid Test", "points": 1500, "merchant": "City Hospital"}
+    ]
+    return jsonify({"vouchers": vouchers, "user_points": 1240}) # Mock points
+
+@app.route('/api/vouchers/redeem', methods=['POST'])
+def redeem_voucher():
+    data = request.json
+    user_id = data.get('user_id')
+    voucher_id = data.get('voucher_id')
+    
+    # Mock redemption logic
+    # In reality, check balance in DB, deduct, create transaction
+    
+    # Simulate DB Update
+    new_balance = 1240 - 200 # Mock calculation
+    
+    # Generate a fake QR code URL (using a placeholder service or just a static string)
+    # Using a reliable QR placeholder service for demo
+    qr_code_url = f"https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=DENGUE-{voucher_id}-{uuid.uuid4().hex[:6].upper()}"
+    
+    return jsonify({
+        "success": True,
+        "new_balance": new_balance,
+        "qr_code": qr_code_url,
+        "message": "Voucher redeemed successfully!"
+    })
+
 
 
 # --- Manager Dashboard APIs ---
