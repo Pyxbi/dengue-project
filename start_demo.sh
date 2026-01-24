@@ -7,8 +7,10 @@ lsof -ti:5328 | xargs kill -9 2>/dev/null
 
 # Start Backend
 echo "🚀 Starting Flask Backend..."
-python3 backend/app.py > backend.log 2>&1 &
+cd backend
+python3 app.py > ../backend.log 2>&1 &
 BACKEND_PID=$!
+cd ..
 echo "   Backend running (PID: $BACKEND_PID)"
 
 # Wait for backend to be ready
@@ -17,13 +19,15 @@ sleep 3
 
 # Start Frontend
 echo "✨ Starting Next.js Frontend..."
+cd frontend
 # Use pnpm dev if available, otherwise npm
 if command -v pnpm &> /dev/null; then
-    pnpm run dev > frontend.log 2>&1 &
+    pnpm run dev > ../frontend.log 2>&1 &
 else
-    npm run dev > frontend.log 2>&1 &
+    npm run dev > ../frontend.log 2>&1 &
 fi
 FRONTEND_PID=$!
+cd ..
 echo "   Frontend running (PID: $FRONTEND_PID)"
 
 # Wait for frontend to be ready
