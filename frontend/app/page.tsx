@@ -26,7 +26,7 @@ export default function CitizenDashboard() {
           <div className="size-8 bg-primary rounded-lg flex items-center justify-center text-white">
             <span className="material-symbols-outlined font-bold text-lg">query_stats</span>
           </div>
-          <span className="font-bold text-charcoal">Dengue Sentinel</span>
+          <span className="font-bold text-charcoal">No Dịch</span>
         </div>
         <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -54,7 +54,7 @@ export default function CitizenDashboard() {
             <span className="material-symbols-outlined font-bold">query_stats</span>
           </div>
           <div>
-            <h1 className="text-lg font-bold tracking-tight text-charcoal">Dengue Sentinel</h1>
+            <h1 className="text-lg font-bold tracking-tight text-charcoal">No Dịch</h1>
             <p className="text-xs text-slate-500">Mekong Delta Hub</p>
           </div>
         </div>

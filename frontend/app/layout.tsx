@@ -9,7 +9,7 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Dengue Sentinel - Outbreak Zero",
+  title: "No Dịch - Outbreak Zero",
   description: "Advanced Dengue Prevention Platform",
 };
 
