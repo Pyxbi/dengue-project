@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Loader2, CheckCircle2, Camera, X, Sparkles, Menu } from "lucide-react";
+import { API_BASE_URL } from "@/lib/config";
 
 // Task points mapping
 const TASK_POINTS: Record<string, number> = {
@@ -57,7 +58,7 @@ export default function TaskCenter() {
         setVerifying(true);
 
         try {
-            const res = await fetch("http://localhost:5328/api/tasks/verify", {
+            const res = await fetch(`${API_BASE_URL}/api/tasks/verify`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -74,11 +75,11 @@ export default function TaskCenter() {
                     const pointsToAdd = TASK_POINTS[activeTask] || 50;
                     setTotalPoints(prev => prev + pointsToAdd);
                     setEarnedPoints(pointsToAdd);
-                    
+
                     setVerified(activeTask);
                     setCapturedImage(null);
                     setActiveTask(null);
-                    
+
                     // Clear earned points notification after 3 seconds
                     setTimeout(() => setEarnedPoints(0), 3000);
                 }
@@ -262,7 +263,7 @@ export default function TaskCenter() {
                         <p className="text-slate-500 text-lg font-medium">Protect your community, earn rewards, and keep the Delta healthy.</p>
                     </div>
                     <div>
-                        <button 
+                        <button
                             onClick={() => handleStartMission('general')}
                             className="flex items-center justify-center rounded-2xl h-14 px-8 bg-primary text-white font-bold text-lg hover:brightness-105 transition-all shadow-md group"
                         >
@@ -345,7 +346,7 @@ export default function TaskCenter() {
                                                 <CheckCircle2 className="w-4 h-4" /> Completed
                                             </span>
                                         ) : (
-                                            <button 
+                                            <button
                                                 onClick={() => handleStartMission('gutter')}
                                                 className="text-sm font-extrabold bg-slate-900 text-white px-5 py-2.5 rounded-xl hover:bg-slate-800 transition-colors flex items-center gap-2"
                                             >
@@ -375,7 +376,7 @@ export default function TaskCenter() {
                                                 <CheckCircle2 className="w-4 h-4" /> Completed
                                             </span>
                                         ) : (
-                                            <button 
+                                            <button
                                                 onClick={() => handleStartMission('flowerpot')}
                                                 className="text-sm font-extrabold bg-slate-900 text-white px-5 py-2.5 rounded-xl hover:bg-slate-800 transition-colors flex items-center gap-2"
                                             >

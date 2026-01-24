@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Camera, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { API_BASE_URL } from "@/lib/config";
 
 interface Task {
     task_id: string;
@@ -27,7 +28,7 @@ export function DailyQuest() {
 
     const fetchTask = async () => {
         try {
-            const res = await fetch("http://localhost:5328/api/daily-task?user_id=user_123");
+            const res = await fetch(`${API_BASE_URL}/api/daily-task?user_id=user_123`);
             if (res.ok) {
                 const data = await res.json();
                 setTask(data.task);
@@ -44,7 +45,7 @@ export function DailyQuest() {
         setVerifying(true);
 
         try {
-            const res = await fetch("http://localhost:5328/api/tasks/verify", {
+            const res = await fetch(`${API_BASE_URL}/api/tasks/verify`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

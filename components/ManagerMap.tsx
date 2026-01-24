@@ -6,6 +6,7 @@ import { MapContainer, TileLayer, Circle, Popup, Marker, useMap, Polygon } from 
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
+import { API_BASE_URL } from "@/lib/config";
 
 // Component to handle map centering
 function MapController({ center }: { center: [number, number] | null }) {
@@ -39,7 +40,7 @@ export default function ManagerMap({ days = 14 }: { days?: number }) {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const res = await fetch(`http://localhost:5328/api/manager/heatmap?days=${days}`);
+                const res = await fetch(`${API_BASE_URL}/api/manager/heatmap?days=${days}`);
                 if (res.ok) {
                     const data = await res.json();
                     setDistricts(data.districts);

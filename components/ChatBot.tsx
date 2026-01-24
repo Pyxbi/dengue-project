@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Send, Bot, X, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { API_BASE_URL } from "@/lib/config";
 
 interface Message {
     role: "user" | "bot";
@@ -32,7 +33,7 @@ export function ChatBot() {
         setIsLoading(true);
 
         try {
-            const res = await fetch("http://localhost:5328/api/chat", {
+            const res = await fetch(`${API_BASE_URL}/api/chat`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ message: userMsg })

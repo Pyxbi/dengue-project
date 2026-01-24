@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { Loader2, TrendingUp, TrendingDown, Users, Shield, Map as MapIcon, Activity, AlertTriangle } from "lucide-react";
+import { API_BASE_URL } from "@/lib/config";
 
 const ManagerMap = dynamic(() => import("@/components/ManagerMap"), { ssr: false });
 
@@ -19,9 +20,9 @@ export default function CDCManagerDashboard() {
         const fetchDashboardData = async () => {
             try {
                 const [sensorsRes, zonesRes, roiRes] = await Promise.all([
-                    fetch("http://localhost:5328/api/manager/sensors"),
-                    fetch("http://localhost:5328/api/manager/priority-zones"),
-                    fetch("http://localhost:5328/api/manager/roi-stats")
+                    fetch(`${API_BASE_URL}/api/manager/sensors`),
+                    fetch(`${API_BASE_URL}/api/manager/priority-zones`),
+                    fetch(`${API_BASE_URL}/api/manager/roi-stats`)
                 ]);
 
                 if (sensorsRes.ok) setSensors(await sensorsRes.json());
@@ -44,7 +45,7 @@ export default function CDCManagerDashboard() {
     const handleBroadcast = async (zoneId: string, zoneName: string) => {
         setBroadcasting(zoneId);
         try {
-            const res = await fetch("http://localhost:5328/api/manager/broadcast", {
+            const res = await fetch(`${API_BASE_URL}/api/manager/broadcast`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ zone_id: zoneId, message: "Urgent prevention required." })
@@ -217,8 +218,8 @@ export default function CDCManagerDashboard() {
                                                     <p className="text-xs text-slate-500">{zone.action_needed}</p>
                                                 </div>
                                                 <span className={`text-[10px] font-extrabold px-2 py-1 rounded border ${zone.risk_label === 'CRITICAL' ? 'bg-red-50 text-red-600 border-red-100' :
-                                                        zone.risk_label === 'HIGH' ? 'bg-orange-50 text-orange-600 border-orange-100' :
-                                                            'bg-yellow-50 text-yellow-600 border-yellow-100'
+                                                    zone.risk_label === 'HIGH' ? 'bg-orange-50 text-orange-600 border-orange-100' :
+                                                        'bg-yellow-50 text-yellow-600 border-yellow-100'
                                                     }`}>
                                                     {zone.risk_label}
                                                 </span>

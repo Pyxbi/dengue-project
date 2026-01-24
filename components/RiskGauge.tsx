@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Droplet, Thermometer, CloudRain, ShieldCheck, ShieldAlert, AlertTriangle } from "lucide-react";
+import { API_BASE_URL } from "@/lib/config";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 interface RiskData {
@@ -24,7 +25,7 @@ export function RiskGauge() {
     useEffect(() => {
         const fetchRisk = async () => {
             try {
-                const res = await fetch("http://localhost:5328/api/risk");
+                const res = await fetch(`${API_BASE_URL}/api/risk`);
                 if (res.ok) {
                     const json = await res.json();
                     setData(json);

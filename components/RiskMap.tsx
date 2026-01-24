@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import { API_BASE_URL } from "@/lib/config";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import "leaflet-defaulticon-compatibility";
@@ -38,7 +39,7 @@ export function RiskMap() {
     useEffect(() => {
         const fetchHeatmap = async () => {
             try {
-                const res = await fetch("http://localhost:5328/api/heatmap");
+                const res = await fetch(`${API_BASE_URL}/api/heatmap`);
                 if (res.ok) {
                     const json = await res.json();
                     setZones(json.zones);

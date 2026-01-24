@@ -8,6 +8,7 @@ import { MapContainer, TileLayer, Circle, Popup, Marker, useMap } from "react-le
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
+import { API_BASE_URL } from "@/lib/config";
 
 // Component to handle map centering
 function MapController({ center }: { center: [number, number] | null }) {
@@ -61,7 +62,7 @@ export default function FullRiskMap() {
         setLoading(true);
         try {
             const offset = showForecast ? 2 : 0;
-            const res = await fetch(`http://localhost:5328/api/heatmap?date_offset=${offset}`);
+            const res = await fetch(`${API_BASE_URL}/api/heatmap?date_offset=${offset}`);
             if (res.ok) {
                 const data = await res.json();
                 setZones(data.zones);
@@ -209,8 +210,8 @@ export default function FullRiskMap() {
             </div>
 
             {/* Back to Home Button - Bottom Left */}
-            <Link 
-                href="/" 
+            <Link
+                href="/"
                 className="absolute bottom-8 left-4 z-20 bg-white/90 backdrop-blur-md px-4 py-3 rounded-full shadow-lg border border-white/20 text-slate-600 hover:bg-white hover:text-primary transition-all flex items-center gap-2 font-medium sm:bottom-8 sm:left-8"
             >
                 <Home className="w-5 h-5" />

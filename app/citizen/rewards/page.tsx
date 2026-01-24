@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Loader2, Ticket } from "lucide-react";
+import { API_BASE_URL } from "@/lib/config";
 
 interface Voucher {
     id: string;
@@ -21,10 +22,10 @@ export default function RewardsPage() {
     useEffect(() => {
         const fetchRewards = async () => {
             try {
-                const res = await fetch("http://localhost:5328/api/vouchers");
+                const res = await fetch(`${API_BASE_URL}/api/vouchers`);
                 const data = await res.json();
                 setVouchers(data.vouchers);
-                
+
                 // Check localStorage first, then fallback to API
                 const savedPoints = localStorage.getItem('userPoints');
                 if (savedPoints) {
@@ -53,7 +54,7 @@ export default function RewardsPage() {
         }
 
         try {
-            const res = await fetch("http://localhost:5328/api/vouchers/redeem", {
+            const res = await fetch(`${API_BASE_URL}/api/vouchers/redeem`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
