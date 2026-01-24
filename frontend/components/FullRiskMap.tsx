@@ -8,6 +8,7 @@ import { MapContainer, TileLayer, Circle, Popup, Marker, useMap } from "react-le
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
+import L from "leaflet";
 import { API_BASE_URL } from "@/lib/config";
 
 // Component to handle map centering
@@ -55,23 +56,54 @@ export default function FullRiskMap() {
 
     // Fetch heatmap data when mode changes
     useEffect(() => {
-        fetchHeatmapData();
-    }, [showForecast]);
-
-    const fetchHeatmapData = async () => {
-        setLoading(true);
-        try {
-            const offset = showForecast ? 2 : 0;
-            const res = await fetch(`${API_BASE_URL}/api/heatmap?date_offset=${offset}`);
-            if (res.ok) {
-                const data = await res.json();
-                setZones(data.zones);
-            }
-        } catch (error) {
-            console.error("Failed to fetch heatmap", error);
-        } finally {
-            setLoading(false);
+        if (userLocation) {
+            generateMockData();
         }
+    }, [showForecast, userLocation]);
+
+    const generateMockData = () => {
+        setLoading(true);
+        const points: HeatmapZone[] = [];
+
+        // Define major centers in Mekong Delta (Mekong Delta specific targeting)
+        const mekongCenters = [
+            { lat: 10.0452, lon: 105.7469, name: "Can Tho" },
+            { lat: 10.2540, lon: 105.9722, name: "Vinh Long" },
+            { lat: 10.3759, lon: 105.4389, name: "Long Xuyen" },
+            { lat: 9.6069, lon: 105.9749, name: "Soc Trang" },
+            { lat: 9.1769, lon: 105.1501, name: "Ca Mau" },
+            { lat: 10.0152, lon: 105.0809, name: "Rach Gia" },
+            { lat: 9.2941, lon: 105.7278, name: "Bac Lieu" },
+            { lat: 10.4524, lon: 105.6375, name: "Cao Lanh" },
+            { lat: 10.3536, lon: 106.3636, name: "My Tho" },
+            { lat: 9.7845, lon: 105.4701, name: "Vi Thanh" },
+        ];
+
+        // Generate clusters of risk points around these centers
+        mekongCenters.forEach(center => {
+            // Generate 3-7 points per city
+            const count = Math.floor(Math.random() * 5) + 3;
+
+            for (let i = 0; i < count; i++) {
+                // Spread roughly 5-10km around center
+                const latOffset = (Math.random() - 0.5) * 0.1;
+                const lonOffset = (Math.random() - 0.5) * 0.1;
+
+                points.push({
+                    lat: center.lat + latOffset,
+                    lon: center.lon + lonOffset,
+                    // mostly high/med risk for the demo
+                    risk: Math.random() > 0.4 ? 85 : 55
+                });
+            }
+        });
+
+        // Add user location to the set IF they are in the delta (approx check) or just add a few near them for UI feedback
+        // But per user request "other just show nothing", we mostly stick to the delta.
+        // We will skip adding user-specific points if they are far away to strictly follow "other just show nothing".
+
+        setZones(points);
+        setLoading(false);
     };
 
     const getColor = (risk: number) => {
@@ -117,22 +149,34 @@ export default function FullRiskMap() {
                     </Popup>
                 </Marker>
 
-                {/* Heatmap Circles */}
-                {zones.map((zone, idx) => (
-                    <Circle
-                        key={idx}
-                        center={[zone.lat, zone.lon]}
-                        pathOptions={{
-                            fillColor: getColor(zone.risk),
-                            color: getColor(zone.risk),
-                            fillOpacity: zone.risk > 50 ? 0.4 : 0.2, // Higher opacity for high risk
-                            weight: 0,
-                            // SVG filter effect could be added here if supported, but standard Circle is safer
-                        }}
-                        radius={5000} // Large radius for overlap/heatmap effect
-                    >
-                    </Circle>
-                ))}
+                {/* Custom Pulsing Markers */}
+                {/* Filter out low risk (<50) and map to Custom Markers */}
+                {zones.filter(z => z.risk >= 50).map((zone, idx) => {
+                    const isHigh = zone.risk >= 75;
+                    const colorClass = isHigh ? 'risk-high' : 'risk-med';
+
+                    return (
+                        <Marker
+                            key={idx}
+                            position={[zone.lat, zone.lon]}
+                            icon={L.divIcon({
+                                className: `risk-point ${colorClass}`,
+                                iconSize: [40, 40], // Size of the pulsing effect area
+                                iconAnchor: [20, 20]
+                            })}
+                        >
+                            <Popup>
+                                <div className="text-center p-2">
+                                    <span className={`inline-block px-2 py-1 rounded text-xs font-bold mb-2 ${isHigh ? 'bg-red-100 text-red-600' : 'bg-orange-100 text-orange-600'}`}>
+                                        {isHigh ? 'HIGH RISK' : 'MEDIUM RISK'}
+                                    </span>
+                                    <p className="text-sm font-semibold text-charcoal">Risk Score: {zone.risk}%</p>
+                                    <p className="text-xs text-slate-500 mt-1">Mosquito activity detected.</p>
+                                </div>
+                            </Popup>
+                        </Marker>
+                    );
+                })}
             </MapContainer>
 
             {/* Overlays */}

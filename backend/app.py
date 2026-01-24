@@ -293,7 +293,8 @@ TASK_POOLS = {
     ],
     "MEDIUM": [
         {"id": "T4", "desc": "Check window screens for holes", "points": 25, "type": "photo"},
-        {"id": "T5", "desc": "Complete a 3-question Dengue quiz", "points": 20, "type": "quiz"}
+        {"id": "T5", "desc": "Complete a 3-question Dengue quiz", "points": 20, "type": "quiz"},
+        {"id": "wash_hands", "desc": "Wash hands with soap", "points": 50, "type": "photo"}
     ],
     "LOW": [
         {"id": "T6", "desc": "Read today's health tip", "points": 10, "type": "read"}

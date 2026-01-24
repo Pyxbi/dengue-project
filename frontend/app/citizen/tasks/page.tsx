@@ -11,6 +11,7 @@ const TASK_POINTS: Record<string, number> = {
     'general': 50,
     'gutter': 150,
     'flowerpot': 50,
+    'wash_hands': 50,
 };
 
 export default function TaskCenter() {
@@ -385,7 +386,38 @@ export default function TaskCenter() {
                                         )}
                                     </div>
                                 </div>
+                                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition-all flex flex-col gap-5">
+                                    <div className="flex justify-between items-start">
+                                        <div className="bg-blue-100 text-blue-500 p-3 rounded-2xl">
+                                            <span className="material-symbols-outlined">water_drop</span>
+                                        </div>
+                                        <span className="px-3 py-1 bg-green-100 text-green-500 text-[10px] font-black rounded-full uppercase tracking-widest">Hygiene</span>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-extrabold text-lg text-slate-800">Wash Hands</h4>
+                                        <p className="text-slate-500 text-sm mt-2 leading-relaxed">Wash hands properly with soap for 20 seconds to prevent disease spread.</p>
+                                    </div>
+                                    <div className="flex justify-between items-center pt-2 mt-auto">
+                                        <div className="flex items-center gap-1.5">
+                                            <span className="material-symbols-outlined text-primary text-sm fill-1">stars</span>
+                                            <span className="text-primary font-black">+50 pts</span>
+                                        </div>
+                                        {verified === 'wash_hands' ? (
+                                            <span className="text-sm font-extrabold bg-green-100 text-green-600 px-5 py-2.5 rounded-xl flex items-center gap-2">
+                                                <CheckCircle2 className="w-4 h-4" /> Completed
+                                            </span>
+                                        ) : (
+                                            <button
+                                                onClick={() => handleStartMission('wash_hands')}
+                                                className="text-sm font-extrabold bg-slate-900 text-white px-5 py-2.5 rounded-xl hover:bg-slate-800 transition-colors flex items-center gap-2"
+                                            >
+                                                <Camera className="w-4 h-4" /> Start Mission
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
+
                         </section>
                     </div>
 
