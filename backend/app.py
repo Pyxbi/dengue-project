@@ -5,100 +5,164 @@ import numpy as np
 import requests
 import os
 from dotenv import load_dotenv
+import datetime
+import sqlite3
+import random
+import uuid
 
+# --------------------
+# App Setup
+# --------------------
 load_dotenv()
 
 app = Flask(__name__)
-# Enable CORS for all routes (Railway deployment)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-# Load trained model (or use rule-based)
+# --------------------
+# Model Loading
+# --------------------
 try:
-    model = joblib.load('dengue_model.pkl')
+    model = joblib.load("dengue_model.pkl")
     USE_ML = True
     print("Loaded ML model")
 except:
     USE_ML = False
     print("Using rule-based prediction")
 
-OPENWEATHER_API_KEY = os.getenv('OPENWEATHER_API_KEY')
+OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
 
+# --------------------
+# Weather Helpers
+# --------------------
 def get_real_weather(lat, lon):
     if not OPENWEATHER_API_KEY:
         return None
-    
     try:
-        url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}&units=metric"
-        response = requests.get(url, timeout=5)
-        if response.status_code == 200:
-            data = response.json()
+        url = (
+            f"https://api.openweathermap.org/data/2.5/weather"
+            f"?lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}&units=metric"
+        )
+        r = requests.get(url, timeout=5)
+        if r.status_code == 200:
+            d = r.json()
             return {
-                'temp': data['main']['temp'],
-                'humidity': data['main']['humidity'],
-                'rainfall': data.get('rain', {}).get('1h', 0) * 24, # Estimate daily rainfall from 1h
-                'salinity': 0.5 # Mock salinity as it's not in standard weather API
+                "temp": d["main"]["temp"],
+                "humidity": d["main"]["humidity"],
+                "rainfall": d.get("rain", {}).get("1h", 0) * 24,
+                "salinity": 0.5,
             }
     except Exception as e:
-        print(f"Error fetching weather: {e}")
+        print("Weather error:", e)
     return None
 
+def get_forecast_weather(lat, lon, days_ahead=2):
+    if not OPENWEATHER_API_KEY:
+        return None
+    try:
+        url = (
+            f"https://api.openweathermap.org/data/2.5/forecast"
+            f"?lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}&units=metric"
+        )
+        r = requests.get(url, timeout=5)
+        if r.status_code != 200:
+            return None
+
+        data = r.json()
+        target_date = (datetime.datetime.now() + datetime.timedelta(days=days_ahead)).date()
+
+        items = []
+        for item in data["list"]:
+            if datetime.datetime.fromtimestamp(item["dt"]).date() == target_date:
+                items.append(item)
+
+        if not items:
+            items = [data["list"][-1]]
+
+        return {
+            "temp": np.mean([x["main"]["temp"] for x in items]),
+            "humidity": np.mean([x["main"]["humidity"] for x in items]),
+            "rainfall": sum([x.get("rain", {}).get("3h", 0) for x in items]) * 4,
+            "salinity": 0.5,
+        }
+    except Exception as e:
+        print("Forecast error:", e)
+    return None
+
+# --------------------
+# Risk Prediction Logic (CENTRALIZED)
+# --------------------
 def rule_based_predict(temp, rainfall, humidity, salinity):
     risk = 0
-    if 25 <= temp <= 30: risk += 35
-    elif 23 <= temp < 25 or 30 < temp <= 32: risk += 20
-    else: risk += 5
-    
-    if rainfall > 150: risk += 35
-    elif rainfall > 80: risk += 20
-    else: risk += 5
-    
-    if humidity > 75: risk += 25
-    elif humidity > 65: risk += 15
-    else: risk += 5
-    
-    if salinity > 2: risk -= 10
-    
+
+    if 25 <= temp <= 30:
+        risk += 35
+    elif 23 <= temp < 25 or 30 < temp <= 32:
+        risk += 20
+    else:
+        risk += 5
+
+    if rainfall > 150:
+        risk += 35
+    elif rainfall > 80:
+        risk += 20
+    else:
+        risk += 5
+
+    if humidity > 75:
+        risk += 25
+    elif humidity > 65:
+        risk += 15
+    else:
+        risk += 5
+
+    if salinity > 2:
+        risk -= 10
+
     return min(95, max(10, risk + np.random.randint(-3, 3)))
 
-@app.route('/api/risk')
-def get_risk():
-    # Get location
-    lat = float(request.args.get('lat', 10.03))
-    lon = float(request.args.get('lon', 105.78))
-    
-    # Try real weather, fallback to mock
-    weather = get_real_weather(lat, lon)
-    if not weather:
-        weather = {
-            'temp': np.random.uniform(27, 31),
-            'rainfall': np.random.uniform(100, 250),
-            'humidity': np.random.uniform(75, 88),
-            'salinity': 0.5
-        }
-    
-    # Predict risk
+def predict_risk(weather):
     if USE_ML:
         features = np.array([[
-            weather['temp'],
-            weather['rainfall'],
-            weather['humidity'],
-            weather['salinity']
+            weather["temp"],
+            weather["rainfall"],
+            weather["humidity"],
+            weather["salinity"]
         ]])
-        risk_pct = int(model.predict(features)[0])
+        return int(model.predict(features)[0])
     else:
-        risk_pct = int(rule_based_predict(weather['temp'], weather['rainfall'], weather['humidity'], weather['salinity']))
-    
-    # Determine level
+        return int(
+            rule_based_predict(
+                weather["temp"],
+                weather["rainfall"],
+                weather["humidity"],
+                weather["salinity"]
+            )
+        )
+
+# --------------------
+# Citizen APIs
+# --------------------
+@app.route("/api/risk")
+def get_risk():
+    lat = float(request.args.get("lat", 10.03))
+    lon = float(request.args.get("lon", 105.78))
+
+    weather = get_real_weather(lat, lon) or {
+        "temp": np.random.uniform(27, 31),
+        "rainfall": np.random.uniform(100, 250),
+        "humidity": np.random.uniform(75, 88),
+        "salinity": 0.5,
+    }
+
+    risk_pct = predict_risk(weather)
+
     if risk_pct >= 75:
-        level = "HIGH"
-        color = "#FF5733"
+        level, color = "HIGH", "#FF5733"
     elif risk_pct >= 50:
-        level = "MEDIUM"
-        color = "#FFA500"
+        level, color = "MEDIUM", "#FFA500"
     else:
-        level = "LOW"
-        color = "#4CAF50"
-    
+        level, color = "LOW", "#4CAF50"
+
     return jsonify({
         "risk_percentage": risk_pct,
         "risk_level": level,
@@ -106,131 +170,65 @@ def get_risk():
         "factors": {
             "temperature": f"{weather['temp']:.1f}°C",
             "rainfall": f"{weather['rainfall']:.0f}mm",
-            "humidity": f"{weather['humidity']:.0f}%"
+            "humidity": f"{weather['humidity']:.0f}%",
         },
         "last_update": "Just now" if OPENWEATHER_API_KEY else "Simulated",
-        "color": color
+        "color": color,
     })
 
-def get_forecast_weather(lat, lon, days_ahead=2):
-    if not OPENWEATHER_API_KEY:
-        return None
-    
-    try:
-        url = f"https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}&units=metric"
-        response = requests.get(url, timeout=5)
-        if response.status_code == 200:
-            data = response.json()
-            # Find readings for ~noon on the target day
-            target_date = (datetime.datetime.now() + datetime.timedelta(days=days_ahead)).date()
-            
-            # Filter for items on that day
-            day_items = []
-            for item in data['list']:
-                item_date = datetime.datetime.fromtimestamp(item['dt']).date()
-                if item_date == target_date:
-                    day_items.append(item)
-            
-            if not day_items:
-                # Fallback to last available item if target out of range (5 days max usually)
-                day_items = [data['list'][-1]]
-            
-            # Average the values for that day
-            avg_temp = np.mean([x['main']['temp'] for x in day_items])
-            avg_humidity = np.mean([x['main']['humidity'] for x in day_items])
-            # Forecast rain is often in 3h chunks. Sum them? Or avg?
-            # 'rain' object might not exist.
-            total_rain = sum([x.get('rain', {}).get('3h', 0) for x in day_items])
-            
-            return {
-                'temp': avg_temp,
-                'humidity': avg_humidity,
-                'rainfall': total_rain * 4, # Crude estimate to daily
-                'salinity': 0.5
-            }
-    except Exception as e:
-        print(f"Error fetching forecast: {e}")
-    return None
+@app.route("/api/forecast")
+def forecast():
+    lat = float(request.args.get("lat", 10.03))
+    lon = float(request.args.get("lon", 105.78))
+    days = int(request.args.get("days", 2))
 
-@app.route('/api/forecast')
-def get_forecast():
-    # Same parameters as /api/risk but for future
-    lat = float(request.args.get('lat', 10.03))
-    lon = float(request.args.get('lon', 105.78))
-    days = int(request.args.get('days', 2))
-    
-    # Try real forecast, fallback to mock
-    weather = get_forecast_weather(lat, lon, days)
-    
-    if not weather:
-        # Mock future weather (make it slightly worse for demo risk)
-        weather = {
-            'temp': np.random.uniform(28, 33), # Hotter
-            'rainfall': np.random.uniform(50, 150),
-            'humidity': np.random.uniform(70, 85),
-            'salinity': 0.5
-        }
-    
-    # Predict risk
-    if USE_ML:
-        features = np.array([[weather['temp'], weather['rainfall'], weather['humidity'], weather['salinity']]])
-        risk_pct = int(model.predict(features)[0])
-    else:
-        risk_pct = int(rule_based_predict(weather['temp'], weather['rainfall'], weather['humidity'], weather['salinity']))
-    
-    # Levels
+    weather = get_forecast_weather(lat, lon, days) or {
+        "temp": np.random.uniform(28, 33),
+        "rainfall": np.random.uniform(50, 150),
+        "humidity": np.random.uniform(70, 85),
+        "salinity": 0.5,
+    }
+
+    risk_pct = predict_risk(weather)
+
     if risk_pct >= 75:
         level, color = "HIGH", "#FF5733"
     elif risk_pct >= 50:
         level, color = "MEDIUM", "#FFA500"
     else:
         level, color = "LOW", "#4CAF50"
-    
-    target_date = (datetime.datetime.now() + datetime.timedelta(days=days)).strftime("%A, %b %d")
+
+    date_label = (datetime.datetime.now() + datetime.timedelta(days=days)).strftime("%A, %b %d")
 
     return jsonify({
         "risk_percentage": risk_pct,
         "risk_level": level,
-        "date": target_date,
+        "date": date_label,
         "factors": {
             "temperature": f"{weather['temp']:.1f}°C",
             "rainfall": f"{weather['rainfall']:.0f}mm",
-            "humidity": f"{weather['humidity']:.0f}%"
+            "humidity": f"{weather['humidity']:.0f}%",
         },
-        "color": color
+        "color": color,
     })
 
-@app.route('/api/heatmap')
-def get_heatmap():
-    # Generate heatmap points for Mekong Delta
-    # If date_offset > 0, we can shift the "hotspots" slightly to simulate change
-    offset = int(request.args.get('date_offset', 0))
-    
-    zones = []
-    # Can Tho coordinates
-    base_lat = 10.03
-    base_lon = 105.78
-    
-    # Use a fixed seed based on offset to keep map stable per day but different between days
+@app.route("/api/heatmap")
+def heatmap():
+    offset = int(request.args.get("date_offset", 0))
     np.random.seed(42 + offset)
-    
-    for lat_offset in np.arange(-5.0, 5.0, 0.2): # Wider range (Southern Vietnam)
-        for lon_offset in np.arange(-3.0, 3.0, 0.2):
-            # Create some "movement" in risk based on offset
-            base_risk = np.random.randint(20, 95)
-            if offset > 0:
-                # Simulate risk spreading or changing
-                change = np.random.randint(-10, 15)
-                risk = min(100, max(0, base_risk + change))
-            else:
-                risk = base_risk
-                
+
+    zones = []
+    base_lat, base_lon = 10.03, 105.78
+
+    for la in np.arange(-5, 5, 0.2):
+        for lo in np.arange(-3, 3, 0.2):
+            risk = np.random.randint(20, 95)
             zones.append({
-                "lat": round(base_lat + lat_offset + (np.random.random()*0.02), 3), # Jitter
-                "lon": round(base_lon + lon_offset + (np.random.random()*0.02), 3),
-                "risk": risk
+                "lat": round(base_lat + la + np.random.random() * 0.02, 3),
+                "lon": round(base_lon + lo + np.random.random() * 0.02, 3),
+                "risk": risk,
             })
-    
+
     return jsonify({"zones": zones})
 
 
