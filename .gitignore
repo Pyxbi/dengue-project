@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+frontend/node_modules
 /.pnp
 .pnp.*
 .yarn/*
@@ -15,10 +16,13 @@
 
 # next.js
 /.next/
+frontend/.next/
 /out/
+frontend/out/
 
 # production
 /build
+frontend/build
 
 # misc
 .DS_Store
@@ -30,6 +34,11 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
+# lock files (optional - uncomment if you want to ignore them)
+# frontend/package-lock.json
+# frontend/pnpm-lock.yaml
+# frontend/yarn.lock
+
 # env files (can opt-in for committing if needed)
 .env*
 
@@ -38,4 +47,5 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+frontend/next-env.d.ts
 next-env.d.ts
