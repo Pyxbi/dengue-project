@@ -7,6 +7,7 @@ import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import "leaflet-defaulticon-compatibility";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import L from "leaflet";
 
 // Dynamic import for Leaflet components to avoid SSR issues
 const MapContainer = dynamic(
@@ -17,8 +18,8 @@ const TileLayer = dynamic(
     () => import("react-leaflet").then((mod) => mod.TileLayer),
     { ssr: false }
 );
-const Circle = dynamic(
-    () => import("react-leaflet").then((mod) => mod.Circle),
+const Marker = dynamic(
+    () => import("react-leaflet").then((mod) => mod.Marker),
     { ssr: false }
 );
 const Popup = dynamic(
@@ -37,27 +38,45 @@ export function RiskMap() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchHeatmap = async () => {
-            try {
-                const res = await fetch(`${API_BASE_URL}/api/heatmap`);
-                if (res.ok) {
-                    const json = await res.json();
-                    setZones(json.zones);
-                }
-            } catch (error) {
-                console.error("Failed to fetch heatmap data", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchHeatmap();
+        generateMockData();
     }, []);
 
-    const getColor = (risk: number) => {
-        if (risk > 75) return "#EF4444"; // Red
-        if (risk > 50) return "#F59E0B"; // Orange
-        return "#10B981"; // Green
+    const generateMockData = () => {
+        setLoading(true);
+        const points: HeatmapZone[] = [];
+
+        // Define major centers in Mekong Delta
+        const mekongCenters = [
+            { lat: 10.0452, lon: 105.7469, name: "Can Tho" },
+            { lat: 10.2540, lon: 105.9722, name: "Vinh Long" },
+            { lat: 10.3759, lon: 105.4389, name: "Long Xuyen" },
+            { lat: 9.6069, lon: 105.9749, name: "Soc Trang" },
+            { lat: 9.1769, lon: 105.1501, name: "Ca Mau" },
+            { lat: 10.0152, lon: 105.0809, name: "Rach Gia" },
+            { lat: 9.2941, lon: 105.7278, name: "Bac Lieu" },
+            { lat: 10.4524, lon: 105.6375, name: "Cao Lanh" },
+            { lat: 10.3536, lon: 106.3636, name: "My Tho" },
+            { lat: 9.7845, lon: 105.4701, name: "Vi Thanh" },
+        ];
+
+        // Generate clusters of risk points around these centers
+        mekongCenters.forEach(center => {
+            const count = Math.floor(Math.random() * 5) + 3;
+
+            for (let i = 0; i < count; i++) {
+                const latOffset = (Math.random() - 0.5) * 0.1;
+                const lonOffset = (Math.random() - 0.5) * 0.1;
+
+                points.push({
+                    lat: center.lat + latOffset,
+                    lon: center.lon + lonOffset,
+                    risk: Math.random() > 0.4 ? 85 : 55
+                });
+            }
+        });
+
+        setZones(points);
+        setLoading(false);
     };
 
     if (loading) {
@@ -78,29 +97,35 @@ export function RiskMap() {
                     scrollWheelZoom={false}
                 >
                     <TileLayer
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                        url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
                     />
-                    {zones.map((zone, idx) => (
-                        <Circle
-                            key={idx}
-                            center={[zone.lat, zone.lon]}
-                            pathOptions={{
-                                fillColor: getColor(zone.risk),
-                                color: getColor(zone.risk),
-                                fillOpacity: 0.5,
-                                weight: 0
-                            }}
-                            radius={5000}
-                        >
-                            <Popup>
-                                <div className="font-sans">
-                                    <p className="font-bold text-sm mb-1">Risk Level: {zone.risk}%</p>
-                                    <p className="text-xs text-muted-foreground">Lat: {zone.lat}, Lon: {zone.lon}</p>
-                                </div>
-                            </Popup>
-                        </Circle>
-                    ))}
+
+                    {zones.filter(z => z.risk >= 50).map((zone, idx) => {
+                        const isHigh = zone.risk >= 75;
+                        const colorClass = isHigh ? 'risk-high' : 'risk-med';
+
+                        return (
+                            <Marker
+                                key={idx}
+                                position={[zone.lat, zone.lon]}
+                                icon={L.divIcon({
+                                    className: `risk-point ${colorClass}`,
+                                    iconSize: [40, 40],
+                                    iconAnchor: [20, 20]
+                                })}
+                            >
+                                <Popup>
+                                    <div className="text-center p-2">
+                                        <span className={`inline-block px-2 py-1 rounded text-xs font-bold mb-2 ${isHigh ? 'bg-red-100 text-red-600' : 'bg-orange-100 text-orange-600'}`}>
+                                            {isHigh ? 'HIGH RISK' : 'MEDIUM RISK'}
+                                        </span>
+                                        <p className="text-sm font-semibold text-charcoal">Risk Score: {zone.risk}%</p>
+                                    </div>
+                                </Popup>
+                            </Marker>
+                        );
+                    })}
                 </MapContainer>
             </CardContent>
         </Card>
