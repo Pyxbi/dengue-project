@@ -158,3 +158,10 @@ To rebuild this environment from scratch:
 
 **Credits**:
 -   Data sources: OpenWeatherMap, Simulated Health Data for Demo.
+
+**Contributer**:
+-   Nguyen Phat Huy: Leader, Ideas Developer.
+-   Le Minh Chau: Visual Designer.
+-   Pham Le Gia Huy: Technical Designer, Coder.
+-   Dang Le Bao Ngoc: Business Model Developer.
+-   Nguyen Thanh Truc: Researcher.
