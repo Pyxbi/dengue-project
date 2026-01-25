@@ -1,4 +1,4 @@
-# 🦟 Outbreak Zero – Dengue Prevention Platform
+# 🦟 Outbreak Zero (No Dich) – Dengue Prevention Platform
 
 ## 📖 Project Overview
 Climate change is intensifying the frequency, scale, and unpredictability of dengue outbreaks in Vietnam, particularly in vulnerable regions such as the Mekong Delta. Existing healthcare responses remain largely **reactive**, constrained by delayed reporting, fragmented data, and limited predictive capability.
@@ -8,20 +8,13 @@ Climate change is intensifying the frequency, scale, and unpredictability of den
 ---
 
 ## 🚨 Problem Statement
-Climate change is driving sudden and severe dengue outbreaks in Vietnam, while the healthcare system remains largely reactive due to the lack of real-time data and predictive intelligence.
+In the Mekong Delta, people access outbreak information differently, lack clarity on when to start dengue prevention, and tend to react only after the risk becomes immediate.
 
 ---
 
 ## 💡 Solution Statement
-**Outbreak Zero** is an **AI-powered, gamified dengue prevention platform** designed for deployment in the Mekong Delta under climate change conditions.
+Outbreak Zero solves this problem by using AI to predict dengue risks early and gamification to motivate people take simple preventive actions in Mekong Delta River before outbreaks happen.
 
-By analyzing **real-time climate and contextual data**, the system predicts dengue outbreak risks and delivers **location-based alerts** before case numbers surge. Instead of relying solely on institutional response, the platform empowers citizens to take preventive action early.
-
-Users receive **GPS-based preventive missions** that translate public health guidelines into **concrete, verifiable actions**, such as removing mosquito breeding sites. Participation is reinforced through **gamification mechanics** and **real-world incentives**.
-
-To ensure credibility and measurable impact, **AI-based verification** validates user-submitted evidence, aligning individual behavior change with broader public health outcomes.
-
----
 
 ## ✨ Features
 
