@@ -8,7 +8,7 @@ Climate change is intensifying the frequency, scale, and unpredictability of den
 ---
 
 ## 🚨 Problem Statement
-In the Mekong Delta, people access outbreak information differently, lack clarity on when to start dengue prevention, and tend to react only after the risk becomes immediate.
+As climate change intensifies rainfall and mosquito breeding in the Mekong Delta, residents receive fragmented dengue information and have no clear trigger for early prevention, leading them to act only once outbreaks are already severe.
 
 ---
 
